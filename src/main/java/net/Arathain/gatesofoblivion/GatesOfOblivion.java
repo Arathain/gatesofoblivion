@@ -1,6 +1,7 @@
 package net.Arathain.gatesofoblivion;
 
 import net.Arathain.gatesofoblivion.item.Astarael;
+import net.Arathain.gatesofoblivion.item.CodexItem;
 import net.Arathain.gatesofoblivion.item.Ranna;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.item.Item;
@@ -20,6 +21,7 @@ public class GatesOfOblivion implements ModInitializer {
     public static final Item BELGAER = new Item( new Item.Settings().group(ItemGroup.TOOLS));
     public static final Item SARANETH = new Item( new Item.Settings().group(ItemGroup.TOOLS));
     public static final Item ASTARAEL = new Astarael( new Item.Settings().group(ItemGroup.TOOLS).maxDamage(0));
+    public static final Item CODEX = new CodexItem( new Item.Settings().group(ItemGroup.TOOLS));
 
 
 
@@ -32,6 +34,7 @@ public class GatesOfOblivion implements ModInitializer {
         Registry.register(Registry.ITEM, new Identifier("gatesofoblivion", "belgaer"), BELGAER);
         Registry.register(Registry.ITEM, new Identifier("gatesofoblivion", "saraneth"), SARANETH);
         Registry.register(Registry.ITEM, new Identifier("gatesofoblivion", "astarael"), ASTARAEL);
+        Registry.register(Registry.ITEM, new Identifier("gatesofoblivion", "codex"), CODEX);
 	}
 	@Override
 	public void onInitialize() {
