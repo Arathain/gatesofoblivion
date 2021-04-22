@@ -34,7 +34,6 @@ public class Ranna extends Item {
         if (!world.isClient && !user.getItemCooldownManager().isCoolingDown(GatesOfOblivion.RANNA)) {
             Vec3d pos = user.getPos();
             ItemStack stack = user.getStackInHand(hand);
-            stack.decrement(1);
             List<LivingEntity> entities = user.getEntityWorld().getEntitiesByClass(
                     LivingEntity.class,
                     new Box(
@@ -49,7 +48,7 @@ public class Ranna extends Item {
                 if (RequiemEntityTypeTags.POSSESSABLES.contains(nearbyEntity.getType())) {
                     Random random = new Random();
                     int bound = 101;
-                    if (random.nextInt(bound) >= 2) {
+                    if (random.nextInt(bound) >= 20) {
                         nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 1200, 10));
                         nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 1200, 2));
                     }
