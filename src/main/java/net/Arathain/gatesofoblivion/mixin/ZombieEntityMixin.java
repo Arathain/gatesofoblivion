@@ -1,4 +1,4 @@
-package net.Arathain.gatesofoblivion.entity;
+package net.Arathain.gatesofoblivion.mixin;
 
 import net.Arathain.gatesofoblivion.entity.dream.BoundAttackWithBinderGoal;
 import net.Arathain.gatesofoblivion.entity.dream.BoundFollowBinderGoal;
@@ -7,13 +7,10 @@ import net.Arathain.gatesofoblivion.entity.interphace.BoundEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,22 +18,23 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.ServerConfigHandler;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class BoundZombie extends ZombieEntity implements BoundEntity {
-    public BoundZombie(EntityType<? extends ZombieEntity> entityType, World world) {
-        super(entityType, world);
-    }
-
-    public static DefaultAttributeContainer.Builder createAttributes() {
-        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 20).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 2).add(EntityAttributes.GENERIC_ARMOR, 4).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2);
-    }
-
+@Mixin(ZombieEntity.class)
+public class ZombieEntityMixin extends HostileEntity implements BoundEntity {
     private static final TrackedData<Byte> TAMEABLE = DataTracker.registerData(TameableEntity.class, TrackedDataHandlerRegistry.BYTE);
     private static final TrackedData<Optional<UUID>> BINDER_UUID = DataTracker.registerData(TameableEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+
+
+    public ZombieEntityMixin(EntityType<? extends ZombieEntity> entityType, World world) {
+        super(entityType, world);
+    }
 
     @Override
     protected void initGoals() {
@@ -48,17 +46,18 @@ public class BoundZombie extends ZombieEntity implements BoundEntity {
         this.goalSelector.add(6, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new BoundTrackAttackerGoal(this));
-        this.targetSelector.add(1, new BoundFollowBinderGoal((BoundZombie) (BoundEntity) this, 1.0D, 10.0F, 2.0F, true));
-        this.targetSelector.add(2, new BoundAttackWithBinderGoal( (BoundEntity) this));
+        this.targetSelector.add(1, new BoundFollowBinderGoal( this, 1.0D, 10.0F, 2.0F, true));
+        this.targetSelector.add(2, new BoundAttackWithBinderGoal(this));
         this.targetSelector.add(3, new RevengeGoal(this));
         this.targetSelector.add(4, new FollowTargetGoal<>(this, LivingEntity.class, 10, true, false, (entity) -> !isTamed()));
     }
-
+    @Inject(method = "writeCustomDataToTag", at = @At("TAIL"))
     public void writeCustomDataToTag(CompoundTag tag, CallbackInfo cir) {
         if (this.getOwnerUuid() != null) {
             tag.putUuid("Binder", this.getOwnerUuid());
         }
     }
+    @Inject(method = "readCustomDataFromTag", at = @At("TAIL"))
     public void readCustomDataFromTag(CompoundTag tag, CallbackInfo cir) {
         super.readCustomDataFromTag(tag);
         UUID ownerUUID;
@@ -78,6 +77,7 @@ public class BoundZombie extends ZombieEntity implements BoundEntity {
             }
         }
     }
+    @Inject(method = "initDataTracker", at = @At("TAIL"))
     protected void initDataTracker(CallbackInfo ci) {
         dataTracker.startTracking(TAMEABLE, (byte) 0);
         dataTracker.startTracking(BINDER_UUID, Optional.empty());
@@ -86,7 +86,7 @@ public class BoundZombie extends ZombieEntity implements BoundEntity {
 
     @Override
     public UUID getOwnerUuid() {
-        return (UUID) ((Optional) this.dataTracker.get(BINDER_UUID)).orElse((Object) null);
+        return (UUID) ((Optional) this.dataTracker.get(BINDER_UUID)).orElse(null);
     }
 
     @Override
@@ -133,3 +133,5 @@ public class BoundZombie extends ZombieEntity implements BoundEntity {
         this.onTamedChanged();
     }
 }
+
+
