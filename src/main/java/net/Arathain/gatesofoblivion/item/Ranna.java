@@ -7,6 +7,7 @@ import ladysnake.requiem.common.remnant.RemnantTypes;
 import ladysnake.requiem.common.remnant.SimpleRemnantType;
 import ladysnake.requiem.common.tag.RequiemEntityTypeTags;
 import net.Arathain.gatesofoblivion.GatesOfOblivion;
+import net.Arathain.gatesofoblivion.entity.interphace.BoundEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -48,10 +49,13 @@ public class Ranna extends Item {
                 if (RequiemEntityTypeTags.POSSESSABLES.contains(nearbyEntity.getType())) {
                     Random random = new Random();
                     int bound = 101;
-                    if (random.nextInt(bound) >= 20) {
-                        nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 1200, 10));
-                        nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 1200, 2));
+                    if (random.nextInt(bound) >= 20 && (nearbyEntity instanceof BoundEntity)) {
+                        if (!((BoundEntity) nearbyEntity).isOwner(user)) {
+                            nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 1200, 10));
+                            nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 1200, 2));
+                        }
                     }
+
 
                 }
             }

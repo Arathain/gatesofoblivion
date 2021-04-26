@@ -5,9 +5,6 @@ import ladysnake.requiem.common.tag.RequiemEntityTypeTags;
 import net.Arathain.gatesofoblivion.GatesOfOblivion;
 import net.Arathain.gatesofoblivion.entity.interphace.BoundEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -32,22 +29,23 @@ public class Saraneth extends Item {
         if (!world.isClient && !user.getItemCooldownManager().isCoolingDown(GatesOfOblivion.RANNA)) {
             Vec3d pos = user.getPos();
             ItemStack stack = user.getStackInHand(hand);
-            List<ZombieEntity> entities = user.getEntityWorld().getEntitiesByClass(
-                    ZombieEntity.class,
+            List<LivingEntity> entities = user.getEntityWorld().getEntitiesByClass(
+                    LivingEntity.class,
                     new Box(
                             pos.getX() - 20, pos.getY() - 20, pos.getZ() - 20,
                             pos.getX() + 20, pos.getY() + 20, pos.getZ() + 20
-                    ), (ZombieEntity) -> true
+                    ), (LivingEntity) -> true
             );
             world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BELL_USE, SoundCategory.PLAYERS, 100000, 10);
-            user.getItemCooldownManager().set(this, 480);
-            for (ZombieEntity nearbyEntity : entities) {
+            user.getItemCooldownManager().set(this, 160);
+            for (LivingEntity nearbyEntity : entities) {
                 System.out.println(entities);
                 if (RequiemEntityTypeTags.POSSESSABLES.contains(nearbyEntity.getType())) {
-                    Random random = new Random();
-                    int bound = 101;
-                    if (random.nextInt(bound) >= 20) {
-                        nearbyEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.UNLUCK, 20, 0));
+                    if (((BoundEntity) nearbyEntity).getOwner() != user) {
+                        ((BoundEntity) nearbyEntity).setOwner(user);
+                        ((BoundEntity) nearbyEntity).setTamed(true);
+                        ((BoundEntity) nearbyEntity).setOwnerUuid(user.getUuid());
+                        ((BoundEntity) nearbyEntity).reset();
                     }
                 }
             }

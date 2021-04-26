@@ -1,28 +1,27 @@
 package net.Arathain.gatesofoblivion.item;
 
 import net.Arathain.gatesofoblivion.GatesOfOblivion;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.entity.projectile.ShulkerBulletEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
-
 public class CodexItem extends Item {
 
     public CodexItem(Settings settings) {
@@ -30,14 +29,12 @@ public class CodexItem extends Item {
     }
 
     @Override
-    public float getMiningSpeedMultiplier(ItemStack stack, BlockState state)
-    {
+    public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
         return 100;
     }
 
     @Override
-    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner)
-    {
+    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
         return false;
     }
 
@@ -55,7 +52,7 @@ public class CodexItem extends Item {
                     FireballEntity fireballEntity = new FireballEntity(EntityType.FIREBALL, world);
                     fireballEntity.setItem(new ItemStack(Items.FIRE_CHARGE));
                     fireballEntity.setOwner(user);
-                    fireballEntity.setProperties(user, user.pitch, user.yaw, 0.0F, 1.5F, 0.0F);
+                    fireballEntity.setProperties(user, user.pitch, user.yaw, 0.0F, 3.0F, 0.0F);
                     fireballEntity.updatePosition(user.getX() + 1, user.getEyeY() + user.getRandom().nextGaussian(), user.getZ() + user.getRandom().nextGaussian());
                     world.spawnEntity(fireballEntity);
                     user.addExhaustion(16f);
@@ -104,3 +101,7 @@ public class CodexItem extends Item {
     }
 
 }
+
+
+
+

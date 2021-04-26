@@ -41,4 +41,7 @@ public interface BoundEntity {
             return false;
         }
     }
+    default void reset() {
+
+    }
 }
