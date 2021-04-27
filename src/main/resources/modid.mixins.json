@@ -4,6 +4,8 @@
   "package": "net.Arathain.gatesofoblivion.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "AbstractSkeletonEntityMixin",
+    "PhantomEntityMixin"
   ],
   "client": [
     "ZombieEntityMixin"

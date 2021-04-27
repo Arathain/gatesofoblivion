@@ -52,14 +52,14 @@ public class CodexItem extends Item {
                     FireballEntity fireballEntity = new FireballEntity(EntityType.FIREBALL, world);
                     fireballEntity.setItem(new ItemStack(Items.FIRE_CHARGE));
                     fireballEntity.setOwner(user);
-                    fireballEntity.setProperties(user, user.pitch, user.yaw, 0.0F, 3.0F, 0.0F);
+                    fireballEntity.setProperties(user, user.pitch, user.yaw, 0.0F, 4.0F, 0.0F);
                     fireballEntity.updatePosition(user.getX() + 1, user.getEyeY() + user.getRandom().nextGaussian(), user.getZ() + user.getRandom().nextGaussian());
                     world.spawnEntity(fireballEntity);
                     user.addExhaustion(16f);
                     user.getItemCooldownManager().set(this, 10);
                     Random random = new Random();
                     int bound = 101;
-                    if ((random.nextInt(bound) >= 4) && !(user.isCreative())) {
+                    if ((random.nextInt(bound) <= 4) && !(user.isCreative())) {
                         itemStack.decrement(1);
                     }
                 }
@@ -78,7 +78,7 @@ public class CodexItem extends Item {
                     user.getItemCooldownManager().set(this, 10);
                     Random random = new Random();
                     int bound = 101;
-                    if ((random.nextInt(bound) >= 4) && !(user.isCreative())) {
+                    if ((random.nextInt(bound) <= 4) && !(user.isCreative())) {
                         itemStack.decrement(1);
                     }
                 }
