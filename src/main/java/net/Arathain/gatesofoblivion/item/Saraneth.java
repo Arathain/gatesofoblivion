@@ -39,7 +39,7 @@ public class Saraneth extends Item {
             world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BELL_USE, SoundCategory.PLAYERS, 100000, 10);
             user.getItemCooldownManager().set(this, 160);
             for (LivingEntity nearbyEntity : entities) {
-                System.out.println(entities);
+
                 if (RequiemEntityTypeTags.POSSESSABLES.contains(nearbyEntity.getType())) {
                     if (((BoundEntity) nearbyEntity).getOwner() != user) {
                         ((BoundEntity) nearbyEntity).setOwner(user);

@@ -26,14 +26,14 @@ public class BoundTrackAttackerGoal extends TrackTargetGoal {
                 return false;
             } else {
                 this.attacker = livingEntity.getAttacker();
-                int i = livingEntity.getLastAttackedTime();
-                return i != this.lastAttackedTime && this.canTrack(this.attacker, TargetPredicate.DEFAULT) && this.tameable.canAttackWithOwner(this.attacker, livingEntity);
+                if (this.attacker != null) {
+                    int i = livingEntity.getLastAttackedTime();
+                    return i != this.lastAttackedTime && this.canTrack(this.attacker, TargetPredicate.DEFAULT) && this.tameable.canAttackWithOwner(this.attacker, livingEntity);
+                }
             }
-        } else {
-            return false;
         }
+        return false;
     }
-
     public void start() {
         this.mob.setTarget(this.attacker);
         LivingEntity livingEntity = this.tameable.getOwner();

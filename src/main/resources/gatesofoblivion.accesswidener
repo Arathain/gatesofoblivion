@@ -1,5 +1,0 @@
-accessWidener v1 named
-
-accessible class net/minecraft/entity/mob/PhantomEntity$StartAttackGoal
-accessible class net/minecraft/entity/mob/PhantomEntity$SwoopMovementGoal
-accessible class net/minecraft/entity/mob/PhantomEntity$CircleMovementGoal

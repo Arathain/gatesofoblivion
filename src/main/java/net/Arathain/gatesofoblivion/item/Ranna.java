@@ -45,7 +45,7 @@ public class Ranna extends Item {
             world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BELL_USE, SoundCategory.PLAYERS, 100000, 10);
             user.getItemCooldownManager().set(this, 480);
             for (LivingEntity nearbyEntity : entities) {
-                System.out.println(entities);
+
                 if (RequiemEntityTypeTags.POSSESSABLES.contains(nearbyEntity.getType())) {
                     Random random = new Random();
                     int bound = 101;

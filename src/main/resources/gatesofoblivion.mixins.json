@@ -5,10 +5,11 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "AbstractSkeletonEntityMixin",
-    "PhantomEntityMixin"
+    "PhantomEntityMixin",
+    "ZoglinEntityMixin",
+    "ZombieEntityMixin"
   ],
   "client": [
-    "ZombieEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

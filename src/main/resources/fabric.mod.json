@@ -23,7 +23,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "gatesofoblivion.mixins.json"
   ],
 
   "depends": {
@@ -33,6 +33,5 @@
   },
   "suggests": {
     "another-mod": "*"
-  },
-  "accessWidener": "gatesofoblivion.accesswidener"
+  }
 }

@@ -40,7 +40,6 @@ public abstract class ZombieEntityMixin extends HostileEntity implements BoundEn
         super(entityType, world);
     }
 
-
     @Override
     public void initGoals() {
         this.goalSelector.add(4, new WanderAroundFarGoal(this, 1.0D));
