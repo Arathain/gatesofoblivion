@@ -20,7 +20,7 @@ public class BoundTrackAttackerGoal extends TrackTargetGoal {
     }
 
     public boolean canStart() {
-        if (this.tameable.isTamed()) {
+        if (this.tameable.isTamed() && (this.tameable != null)) {
             LivingEntity livingEntity = this.tameable.getOwner();
             if (livingEntity == null) {
                 return false;

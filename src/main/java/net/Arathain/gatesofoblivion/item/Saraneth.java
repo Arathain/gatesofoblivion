@@ -40,7 +40,7 @@ public class Saraneth extends Item {
             user.getItemCooldownManager().set(this, 160);
             for (LivingEntity nearbyEntity : entities) {
 
-                if (RequiemEntityTypeTags.POSSESSABLES.contains(nearbyEntity.getType())) {
+                if (nearbyEntity instanceof BoundEntity) {
                     if (((BoundEntity) nearbyEntity).getOwner() != user) {
                         ((BoundEntity) nearbyEntity).setOwner(user);
                         ((BoundEntity) nearbyEntity).setTamed(true);

@@ -4,17 +4,15 @@ import net.Arathain.gatesofoblivion.entity.interphace.BoundEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.*;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
 
 import java.util.EnumSet;
 
-public class MordicantFollowAttackerGoal<T extends ZombieEntity & BoundEntity> extends Goal{
+public class MordicantFollowAttackerGoal<T extends HostileEntity & BoundEntity> extends Goal{
     private final T tameable;
     private LivingEntity owner;
     private final WorldView world;

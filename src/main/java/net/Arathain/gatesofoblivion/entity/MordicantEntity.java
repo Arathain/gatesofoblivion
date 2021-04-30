@@ -2,6 +2,7 @@ package net.Arathain.gatesofoblivion.entity;
 
 import net.Arathain.gatesofoblivion.entity.dream.*;
 import net.Arathain.gatesofoblivion.entity.interphace.BoundEntity;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.FollowTargetGoal;
@@ -13,27 +14,29 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.ServerConfigHandler;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class MordicantEntity extends ZombieEntity implements BoundEntity {
+public class MordicantEntity extends HostileEntity implements BoundEntity {
     private static final TrackedData<Byte> TAMEABLE = DataTracker.registerData(TameableEntity.class, TrackedDataHandlerRegistry.BYTE);
     private static final TrackedData<Optional<UUID>> BINDER_UUID = DataTracker.registerData(TameableEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
 
-    public MordicantEntity(EntityType<? extends ZombieEntity> entityType, World world) {
+    public MordicantEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
         setPathfindingPenalty(PathNodeType.DANGER_FIRE, 0);
         setPathfindingPenalty(PathNodeType.DAMAGE_FIRE, 0);
@@ -55,27 +58,72 @@ public class MordicantEntity extends ZombieEntity implements BoundEntity {
         this.targetSelector.add(5, new FollowTargetGoal(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
     }
     public static DefaultAttributeContainer.Builder createAttributes() {
-        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 200).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6).add(EntityAttributes.GENERIC_ARMOR, 6).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3).add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.75).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 350.0);
+        return HostileEntity.createHostileAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 100).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 20).add(EntityAttributes.GENERIC_ARMOR, 6).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35).add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.75).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 350.0);
     }
     @Override
     public void tick() {
         super.tick();
-        if (!world.isClient && (this.getHealth() <= this.getMaxHealth()/2)) {
+        if (!world.isClient && (this.getHealth() <= 50)) {
+            BlockPos funnypos = this.getBlockPos();
             this.setOnFireFor(10);
             this.clearStatusEffects();
+            world.setBlockState(funnypos, Blocks.FIRE.getDefaultState());
         }
+        if (!this.isInsideWaterOrBubbleColumn()) {
         world.addParticle(ParticleTypes.FLAME,
                 getX() + random.nextGaussian() * 0.2,
                 getY() + random.nextGaussian() * 0.5 + 1,
                 getZ() + random.nextGaussian() * 0.2,
                 0, 0.2, 0);
+        }
         if (this.isInsideWaterOrBubbleColumn()) {
             world.addParticle(ParticleTypes.SMOKE,
                     getX() + random.nextGaussian() * 0.2,
                     getY() + random.nextGaussian() * 0.5 + 1,
                     getZ() + random.nextGaussian() * 0.2,
-                    0, 0.2, 0);
+                    0, 0.1, 0);
+            world.addParticle(ParticleTypes.SMOKE,
+                    getX() + random.nextGaussian() * 0.2,
+                    getY() + random.nextGaussian() * 0.5 + 1,
+                    getZ() + random.nextGaussian() * 0.2,
+                    0, 0.1, 0);
         }
+        if (!world.isClient && (this.getHealth() <= 18)) {
+            this.clearStatusEffects();
+            this.heal(20);
+        }
+    }
+    @Override
+    public void writeCustomDataToTag(CompoundTag tag) {
+        if (this.getOwnerUuid() != null) {
+            tag.putUuid("Binder", this.getOwnerUuid());
+        }
+    }
+    @Override
+    public void readCustomDataFromTag(CompoundTag tag) {
+        super.readCustomDataFromTag(tag);
+        UUID ownerUUID;
+        if (tag.containsUuid("Binder")) {
+            ownerUUID = tag.getUuid("Binder");
+        } else {
+            String string = tag.getString("Binder");
+            ownerUUID = ServerConfigHandler.getPlayerUuidByName(this.getServer(), string);
+        }
+
+        if (ownerUUID != null) {
+            try {
+                this.setOwnerUuid(ownerUUID);
+                this.setTamed(true);
+            } catch (Throwable var4) {
+                this.setTamed(false);
+            }
+        }
+    }
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        dataTracker.startTracking(TAMEABLE, (byte) 0);
+        dataTracker.startTracking(BINDER_UUID, Optional.empty());
     }
 
     @Override
@@ -131,6 +179,4 @@ public class MordicantEntity extends ZombieEntity implements BoundEntity {
         this.setTarget(null);
         this.navigation.stop();
     }
-
-
 }
