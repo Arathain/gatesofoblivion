@@ -1,6 +1,7 @@
 package net.Arathain.gatesofoblivion.entity.interphace;
 
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.GhastEntity;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public interface BoundEntity {
+public interface BoundEntity  {
     UUID getOwnerUuid();
     void setOwnerUuid(@Nullable UUID uuid);
     void setOwner(PlayerEntity player);

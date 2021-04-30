@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "net.Arathain.gatesofoblivion.GatesOfOblivion"
+    ],
+    "client": [
+      "net.Arathain.gatesofoblivion.GatesOfOblivionClient"
     ]
   },
   "mixins": [

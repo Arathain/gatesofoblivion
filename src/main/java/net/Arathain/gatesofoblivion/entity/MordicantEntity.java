@@ -1,17 +1,19 @@
-package net.Arathain.gatesofoblivion.mixin;
+package net.Arathain.gatesofoblivion.entity;
 
-import net.Arathain.gatesofoblivion.entity.dream.BoundAttackWithBinderGoal;
-import net.Arathain.gatesofoblivion.entity.dream.BoundFollowBinderGoal;
-import net.Arathain.gatesofoblivion.entity.dream.BoundTrackAttackerGoal;
-import net.Arathain.gatesofoblivion.entity.dream.BoundZombieAttackGoal;
+import net.Arathain.gatesofoblivion.entity.dream.*;
 import net.Arathain.gatesofoblivion.entity.interphace.BoundEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.ai.goal.FollowTargetGoal;
+import net.minecraft.entity.ai.goal.RevengeGoal;
+import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
+import net.minecraft.entity.ai.pathing.PathNodeType;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.mob.ZombifiedPiglinEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
@@ -19,31 +21,29 @@ import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.ServerConfigHandler;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Mixin(ZombieEntity.class)
-public abstract class ZombieEntityMixin extends HostileEntity implements BoundEntity {
+public class MordicantEntity extends ZombieEntity implements BoundEntity {
     private static final TrackedData<Byte> TAMEABLE = DataTracker.registerData(TameableEntity.class, TrackedDataHandlerRegistry.BYTE);
     private static final TrackedData<Optional<UUID>> BINDER_UUID = DataTracker.registerData(TameableEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
-    protected ZombieEntityMixin(EntityType<? extends ZombieEntity> entityType, World world) {
+
+    public MordicantEntity(EntityType<? extends ZombieEntity> entityType, World world) {
         super(entityType, world);
+        setPathfindingPenalty(PathNodeType.DANGER_FIRE, 0);
+        setPathfindingPenalty(PathNodeType.DAMAGE_FIRE, 0);
+        experiencePoints = 20;
     }
 
     @Override
     public void initGoals() {
         this.goalSelector.add(4, new WanderAroundFarGoal(this, 1.0D));
-        this.goalSelector.add(3, new BoundFollowBinderGoal( this, 1.0D, 10.0F, 2.0F, true));
+        this.goalSelector.add(3, new MordicantFollowAttackerGoal( this, 1.0D, 10.0F, 2.0F, true));
         this.goalSelector.add(2, new BoundZombieAttackGoal(this, 1.0D, false));
 
         this.targetSelector.add(3, (new RevengeGoal(this)).setGroupRevenge(ZombifiedPiglinEntity.class));
@@ -54,42 +54,29 @@ public abstract class ZombieEntityMixin extends HostileEntity implements BoundEn
         this.targetSelector.add(3, new FollowTargetGoal(this, IronGolemEntity.class, true));
         this.targetSelector.add(5, new FollowTargetGoal(this, TurtleEntity.class, 10, true, false, TurtleEntity.BABY_TURTLE_ON_LAND_FILTER));
     }
-
-
-
-    @Inject(method = "writeCustomDataToTag", at = @At("TAIL"))
-    public void writeCustomDataToTag(CompoundTag tag, CallbackInfo cir) {
-        if (this.getOwnerUuid() != null) {
-            tag.putUuid("Binder", this.getOwnerUuid());
+    public static DefaultAttributeContainer.Builder createAttributes() {
+        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 200).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6).add(EntityAttributes.GENERIC_ARMOR, 6).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3).add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 0.75).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 350.0);
+    }
+    @Override
+    public void tick() {
+        super.tick();
+        if (!world.isClient && (this.getHealth() <= this.getMaxHealth()/2)) {
+            this.setOnFireFor(10);
+            this.clearStatusEffects();
+        }
+        world.addParticle(ParticleTypes.FLAME,
+                getX() + random.nextGaussian() * 0.2,
+                getY() + random.nextGaussian() * 0.5 + 1,
+                getZ() + random.nextGaussian() * 0.2,
+                0, 0.2, 0);
+        if (this.isInsideWaterOrBubbleColumn()) {
+            world.addParticle(ParticleTypes.SMOKE,
+                    getX() + random.nextGaussian() * 0.2,
+                    getY() + random.nextGaussian() * 0.5 + 1,
+                    getZ() + random.nextGaussian() * 0.2,
+                    0, 0.2, 0);
         }
     }
-    @Inject(method = "readCustomDataFromTag", at = @At("TAIL"))
-    public void readCustomDataFromTag(CompoundTag tag, CallbackInfo cir) {
-        super.readCustomDataFromTag(tag);
-        UUID ownerUUID;
-        if (tag.containsUuid("Binder")) {
-            ownerUUID = tag.getUuid("Binder");
-        } else {
-            String string = tag.getString("Binder");
-            ownerUUID = ServerConfigHandler.getPlayerUuidByName(this.getServer(), string);
-        }
-
-        if (ownerUUID != null) {
-            try {
-                this.setOwnerUuid(ownerUUID);
-                this.setTamed(true);
-            } catch (Throwable var4) {
-                this.setTamed(false);
-            }
-        }
-    }
-    @Inject(method = "initDataTracker", at = @At("TAIL"))
-    protected void initDataTracker(CallbackInfo ci) {
-        dataTracker.startTracking(TAMEABLE, (byte) 0);
-        dataTracker.startTracking(BINDER_UUID, Optional.empty());
-    }
-
-
 
     @Override
     public UUID getOwnerUuid() {
@@ -145,6 +132,5 @@ public abstract class ZombieEntityMixin extends HostileEntity implements BoundEn
         this.navigation.stop();
     }
 
+
 }
-
-

@@ -94,8 +94,6 @@ public class AbstractSkeletonEntityMixin extends HostileEntity implements Ranged
         dataTracker.startTracking(BINDER_UUID, Optional.empty());
     }
 
-
-
     @Override
     public UUID getOwnerUuid() {
         return (UUID) ((Optional) this.dataTracker.get(BINDER_UUID)).orElse(null);

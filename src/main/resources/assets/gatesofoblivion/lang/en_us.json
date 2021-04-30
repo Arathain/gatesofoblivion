@@ -9,5 +9,9 @@
   "item.gatesofoblivion.astarael": "Astarael",
   "item.gatesofoblivion.codex": "Codex of Free Magic",
   "item.gatesofoblivion.lost_medallion": "Lost Medallion",
-  "item.gatesofoblivion.ninth_codex": "Codex of The Ninth Bright Shiner"
+  "item.gatesofoblivion.ninth_codex": "Codex of The Ninth Bright Shiner",
+  "item.gatesofoblivion.soul_chamber": "Empty Soul Chamber",
+  "item.gatesofoblivion.filled_soul_chamber": "Soul Chamber",
+  "item.gatesofoblivion.free_magic_crest": "Free Magic Crest",
+  "entity.gatesofoblivion.mordicant": "Mordicant"
 }
